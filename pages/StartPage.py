@@ -81,6 +81,6 @@ class StartPage(tk.Frame):
         if not any(files):
             messagebox.showerror("Errore", "Seleziona almeno un insieme per iniziare")
         else:
+            [sel.initialize(False) for path,sel in self.selected_grid.items()]
             self.controller.init_frame(QuizPage, QuizPage(self.controller.container, self.controller, files))
             self.controller.show_frame(QuizPage)
-            
