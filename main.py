@@ -7,4 +7,7 @@ sys.path.append(os.getcwd())
 
 if __name__ == "__main__":
     app = tkinterApp()
+    app.geometry("600x600")
+    app.grid_columnconfigure([0, 1, 2], weight=1)
+    app.grid_rowconfigure([0, 1, 2], weight=1)
     app.mainloop()

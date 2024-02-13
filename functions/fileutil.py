@@ -42,3 +42,13 @@ def create_path_name_unique(folder:str, filename:str)->str:
 
     print(path)
     return path
+
+def delete_files(filenames: list[str])->None:
+    for path in filenames:
+        delete_file(path)
+
+def delete_file(filename):
+    try:
+        os.remove(filename)
+    except:
+        pass
