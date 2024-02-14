@@ -14,7 +14,7 @@ def upload_file() -> str:
     else:
         return("")
 
-def check_file(path, delim=",") -> bool:
+def check_file(path:str, delim=",") -> bool:
     with open(path, "r", encoding="UTF-8") as f:
         for line in f.readlines():
             if(len(line.split(delim)) != 2):
@@ -22,7 +22,7 @@ def check_file(path, delim=",") -> bool:
         return True
 
 
-def copy_file(src, dst) -> None:
+def copy_file(src:str, dst:str) -> None:
     shutil.copyfile(src, dst)
 
 def create_path_name_unique(folder:str, filename:str)->str:
@@ -47,8 +47,12 @@ def delete_files(filenames: list[str])->None:
     for path in filenames:
         delete_file(path)
 
-def delete_file(filename):
+def delete_file(filename:str):
     try:
         os.remove(filename)
     except:
         pass
+
+def write_log(path:str, row:str):
+    with open(path, "a") as f:
+        f.write(row)

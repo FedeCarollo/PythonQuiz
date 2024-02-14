@@ -4,6 +4,7 @@ from functions.fileutil import upload_file, delete_files
 import tkModule
 import os
 from pages.QuizPage import QuizPage
+from pages.SummaryPage import SummaryPage
 
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -12,8 +13,8 @@ class StartPage(tk.Frame):
 
         lbl = ttk.Label(self, text="Carica nuovo", font=("Arial", 12, "bold"))
         lbl.grid(row=0, column=0, padx=10, pady=10)
-        button = ttk.Button(self, text="Upload new file", command=self.upload_and_add)
-        button.grid(row=0, column=2, padx=10, pady=10)
+        btnUpload = ttk.Button(self, text="Upload new file", command=self.upload_and_add)
+        btnUpload.grid(row=0, column=2, padx=10, pady=10)
 
         lbl = ttk.Label(self, text="File caricati", font=("Arial", 12, "bold"))
         lbl.grid(row=1, column=0, padx=1, pady=10)
@@ -29,20 +30,25 @@ class StartPage(tk.Frame):
         btn_start = ttk.Button(self, text="Inizia quiz", command=self.start_quiz)
         btn_start.grid(row=4, column=3, sticky="ew")
 
+        btn_view_progress = ttk.Button(self, text="Visualizza storico", command=self.view_progress)
+        btn_view_progress.grid(row=5, column=3, sticky="ew")
+
+    def view_progress(self):
+        self.controller.init_frame(SummaryPage, SummaryPage(self.controller.container, self.controller))
+        self.controller.show_frame(SummaryPage)
+
+
     def show_files(self):
         for file in os.listdir(os.getcwd() + "\\files"):
             self.show_file_in_list(file)
 
-
-
     def show_file_in_list(self, path):
-        #TODO: only if file is valid
         i = self.n//4
         j = self.n%4
         self.selected_grid[path] = tk.BooleanVar(value=False)
         btn = ttk.Checkbutton(self, text=os.path.basename(path), variable=self.selected_grid[path], command=lambda: self.show_selected(path))
         self.btn_grid.append(btn)
-        btn.grid(row=3+self.n, column=0, padx=1, pady=10, sticky="w")
+        btn.grid(row=3+self.n, column=0, padx=10, pady=10, sticky="w")
         self.n+=1
 
     def upload_and_add(self) -> None:
@@ -81,6 +87,6 @@ class StartPage(tk.Frame):
         if not any(files):
             messagebox.showerror("Errore", "Seleziona almeno un insieme per iniziare")
         else:
-            [sel.initialize(False) for path,sel in self.selected_grid.items()]
+            [sel.initialize(False) for _,sel in self.selected_grid.items()]
             self.controller.init_frame(QuizPage, QuizPage(self.controller.container, self.controller, files))
             self.controller.show_frame(QuizPage)

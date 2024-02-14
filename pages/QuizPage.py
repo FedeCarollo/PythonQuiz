@@ -1,9 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from functions.fileutil import upload_file, delete_files
+from functions.fileutil import write_log
 import os
 from random import randint, shuffle
 import pages.StartPage
+import datetime
 
 
 class QuizPage(tk.Frame):
@@ -11,8 +12,7 @@ class QuizPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller=controller
         self.nQuestions = 0
-        self.right = []
-        self.wrong = []
+        self.summary = []
         self.questions = []
         self.fileList = [f"{os.getcwd()}\\files\\{file}" for file in fileList]
 
@@ -54,8 +54,15 @@ class QuizPage(tk.Frame):
     def gen_questions(self):
         for path in self.fileList:
             self.questions.extend(self.read_question_file(path))
-        #TODO check cases in which it iterates forever
+        
         all_ans = [q["true_ans"] for q in self.questions]
+
+        #To prevent forever cycling
+        if(len(set(all_ans))<4):
+            messagebox.showerror("Errore","I file forniti non contengono abbastanza associazioni")
+            self.back_home()
+            return
+
         for q in self.questions:
             for _ in range(3):
                 j = randint(0, len(all_ans)-1)
@@ -67,7 +74,14 @@ class QuizPage(tk.Frame):
 
         
         shuffle(self.questions)
+
+        self.maxQuestions=len(self.questions)
+
+        if(self.maxQuestions<self.nQuestions):
+            messagebox.showinfo("Info", f"Per i file caricati sono disponibili solo {self.maxQuestions} domande.")
+        self.nQuestions = min(self.maxQuestions,self.nQuestions)
         self.questions =self.questions[:self.nQuestions]
+
         [print(q) for q in self.questions]
         
     def read_question_file(self, path:str, delim=",") -> list:
@@ -88,7 +102,8 @@ class QuizPage(tk.Frame):
         self.lblEntry.destroy()
         self.entry.destroy()
 
-    def create_question(self):
+
+    def create_question(self) -> None:
         q = self.questions[self.i]
         self.btns: list[ttk.Button] = []
         self.lblQuestion = ttk.Label(self, text=q["question"].capitalize(), font=("Arial", 12, "bold"))
@@ -104,8 +119,6 @@ class QuizPage(tk.Frame):
         
 
     def select_choice(self, i, n):
-
-
         if self.questions[i]["your_ans"] == self.questions[i]["answers"][n]:
             self.questions[i]["your_ans"] = ""
             self.btns[n].configure(style="BTN_NS.TButton")
@@ -167,6 +180,8 @@ class QuizPage(tk.Frame):
         btnHome.grid(row=2*(i-1), column=0)
         summary_elems.append(btnHome)
         self.summary = summary_elems
+
+        write_log(os.getcwd() + "\\log\\logfile.log",f"{datetime.datetime.now().timestamp()},{right},{wrong},{ng}\n")
 
     def back_home(self):
         for elem in self.summary:
